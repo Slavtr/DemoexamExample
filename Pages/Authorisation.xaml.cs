@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ViewModel;
 
 namespace Проект.Pages
 {
@@ -23,6 +24,8 @@ namespace Проект.Pages
         public Authorisation()
         {
             InitializeComponent();
+            this.DataContext = MainWindow.model1;
+            InButton.Click += ((ViewModel1)DataContext).Authorisation;
         }
     }
 }

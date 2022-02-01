@@ -21,10 +21,13 @@ namespace Проект
     /// </summary>
     public partial class MainWindow : Window
     {
-        new public object DataContext { get; set; } = new ViewModel1();
+        public static ViewModel1 model1 { get; set; } = new ViewModel1();
         public MainWindow()
         {
             InitializeComponent();
+            ((ViewModel1)DataContext).MainFrame = MainFrame;
+            MainFrame.Content = new Pages.Authorisation();
+            DataContext = model1;
         }
     }
 }

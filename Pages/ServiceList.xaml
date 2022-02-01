@@ -18,7 +18,7 @@
             <RowDefinition Height="47*"/>
         </Grid.RowDefinitions>
         <TextBlock Text="СПИСОК УСЛУГ" Grid.Row="0" Grid.Column="1"/>
-        <ListBox x:Name="ServiceList" Grid.Row="1" Grid.ColumnSpan="2">
+        <ListBox x:Name="Oleg" Grid.Row="1" Grid.ColumnSpan="2">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">

@@ -44,6 +44,9 @@ namespace ViewModel
         {
             MainFrame.Content = Pages.Where(x => x.Name.Contains("ServiceList"));
         }
-
+        public ViewModel1()
+        {
+            MainFrame = new Frame();
+        }
     }
 }
