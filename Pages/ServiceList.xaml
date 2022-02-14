@@ -6,7 +6,8 @@
       xmlns:local="clr-namespace:Проект.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="ServiceList">
+      Title="ServiceList"
+      Name="ServiceListPage">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -18,18 +19,18 @@
             <RowDefinition Height="47*"/>
         </Grid.RowDefinitions>
         <TextBlock Text="СПИСОК УСЛУГ" Grid.Row="0" Grid.Column="1"/>
-        <ListBox x:Name="Oleg" Grid.Row="1" Grid.ColumnSpan="2">
+        <ListBox x:Name="lbServices" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=MainWindow.model1.Services}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Path=MainImagePath}"/>
+                        <Image Source="{Binding Path=MainImagePath}" x:Name="lbiPicture"/>
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="{Binding Path=Title}"/>
                             <TextBlock Text="{Binding Path=Duration}"/>
                             <TextBlock Text="{Binding Path=Discount}" x:Name="Discount"/>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="редактировать"/>
-                                <Button Content="удалить"/>
+                                <Button Content="редактировать" x:Name="lbiButtonRedact"/>
+                                <Button Content="удалить" x:Name="lbiButtonDelete"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -41,6 +42,6 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button x:Name="AddButton" Content="Добавить" Grid.Column="0" Grid.Row="0"/>
+        <Button x:Name="AddButton" Content="Добавить" Grid.Column="0" Grid.Row="0" IsEnabled="{Binding Path=IsAdmin}"/>
     </Grid>
 </Page>

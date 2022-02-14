@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ViewModel;
+using Проект.Pages;
 
 namespace Проект
 {
@@ -25,9 +26,10 @@ namespace Проект
         public MainWindow()
         {
             InitializeComponent();
-            ((ViewModel1)DataContext).MainFrame = MainFrame;
+            model1.MainFrame = MainFrame;
             MainFrame.Content = new Pages.Authorisation();
             DataContext = model1;
+            model1.Pages.Add(new ServiceList());
         }
     }
 }

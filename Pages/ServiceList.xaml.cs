@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +25,8 @@ namespace Проект.Pages
         public ServiceList()
         {
             InitializeComponent();
+            DataContext = MainWindow.model1;
+            lbServices.ItemsSource = MainWindow.model1.Services;
         }
     }
 }
