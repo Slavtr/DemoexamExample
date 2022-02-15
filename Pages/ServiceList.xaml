@@ -23,19 +23,19 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Path=MainImagePath}" x:Name="lbiPicture"/>
+                        <Image Source="{Binding Path=Service.MainImagePath}" x:Name="lbiPicture"/>
                         <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding Path=Title}"/>
-                            <TextBlock Text="{Binding Path=Duration}"/>
-                            <TextBlock Text="{Binding Path=Discount}" x:Name="Discount"/>
+                            <TextBlock Text="{Binding Path=Service.Title}"/>
+                            <TextBlock Text="{Binding Path=Service.Duration}"/>
+                            <TextBlock Text="{Binding Path=Service.Discount}" x:Name="Discount"/>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="редактировать" x:Name="lbiButtonRedact" Click="{Binding Path=ServiceList_OnClick}" IsEnabled="{Binding Path=IsAdmin}"/>
-                                <Button Content="удалить" x:Name="lbiButtonDelete" Click="{Binding Path=ServiceList_OnClick}" IsEnabled="{Binding Path=IsAdmin}"/>
+                                <Button Content="редактировать" x:Name="lbiButtonRedact" Command="{Binding Path=Change}" IsEnabled="{Binding Path=IsAdmin}"/>
+                                <Button Content="удалить" x:Name="lbiButtonDelete" Command="{Binding Path=Delete}" IsEnabled="{Binding Path=IsAdmin}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
                     <DataTemplate.Triggers>
-                        <DataTrigger Binding="{Binding Discount}" Value="0">
+                        <DataTrigger Binding="{Binding Service.Discount}" Value="0">
                             <Setter TargetName="Discount" Property="Visibility" Value="Hidden"/>
                         </DataTrigger>
                     </DataTemplate.Triggers>

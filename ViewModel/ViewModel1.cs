@@ -62,7 +62,7 @@ namespace ViewModel
         {
             foreach(Service service in _entities.Service)
             {
-                Services.Add(new ServicesVM(service, _isAdmin, Service_Action, Service_Delete));
+                Services.Add(new ServicesVM(service, _isAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteCommand));
             }
         }
         public ObservableCollection<ServiceClient> ServiceClients { get; set; } = new ObservableCollection<ServiceClient>();
@@ -81,37 +81,43 @@ namespace ViewModel
             _entities.SaveChanges();
         }
 
-        private void Service_Action(string pageName, int mode)
-        {
-            switch (mode)
-            {
-                case 1:
-                    CurrentService = new ServicesVM();
-                    Services.Add(CurrentService);
-                    MainFrame.Content = Pages.FirstOrDefault(x => x.Name == pageName);
-                    break;
-                case 2:
-                    MainFrame.Content = Pages.FirstOrDefault(x => x.Name == pageName);
-                    break;
-            }
-        }
         private void Service_Delete()
         {
             Services.Remove(CurrentService);
+        }
+
+        public void ExecuteServiceCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            switch((e.Command as RoutedCommand).Name)
+            {
+                case "Delete":
+                    Service_Delete();
+                    break;
+                case "Change":
+                    break;
+            }
+        }
+
+        private void CanExecuteCommand(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = _isAdmin;
         }
     }
 
     public struct ServicesVM
     {
         public Service Service { get; set; }
-        public bool _isAdmin;
+        public bool IsAdmin;
 
-        public ServicesVM(Service service, bool isAdmin, MainFrameChange method, ServiceDelete delete)
+        public ServicesVM(Service service, bool isAdmin, Type mainViewType, Action<object, ExecutedRoutedEventArgs> executeServiceCommand, Action<object, CanExecuteRoutedEventArgs> canExecute)
         {
             Service = service;
-            _isAdmin = isAdmin;
-            MainFrameChangeEvent = method;
-            ServiceDeleteEvent = delete;
+            IsAdmin = isAdmin;
+            Delete = new RoutedCommand("Delete", mainViewType.GetType());
+            Change = new RoutedCommand("Change", mainViewType.GetType());
+            
+            _serviceDeleteCommandBinding = new CommandBinding(Delete, executeServiceCommand.Invoke, canExecute.Invoke);
+            _serviceChangeCommandBinding = new CommandBinding(Change, executeServiceCommand.Invoke, canExecute.Invoke);
         }
 
         //private void ServiceItem_OnLoad(object sender, NotifyCollectionChangedEventArgs e)
@@ -140,43 +146,11 @@ namespace ViewModel
         //        bDelete.Click += ServiceList_OnClick;
         //    }
         //}
+        
+        public RoutedCommand Delete { get; set; }
+        public RoutedCommand Change { get; set; }
 
-        private void ServiceList_OnClick(object sender, EventArgs e)
-        {
-            switch((sender as Button).Name)
-            {
-                case "AddButton":
-                    MainFrameChangeEvent.Invoke("ServiceCard", 1);
-                    break;
-                case "lbiButtonDelete":
-                    ServiceDeleteEvent.Invoke();
-                    break;
-                case "lbiButtonRedact":
-                    MainFrameChangeEvent.Invoke("ServiceCard", 2);
-                    break;
-            }
-        }
-
-        public delegate void MainFrameChange(string frameName, int mode);
-        public event MainFrameChange MainFrameChangeEvent;
-
-        public delegate void ServiceDelete();
-        public event ServiceDelete ServiceDeleteEvent;
-
-        //ServiceListItemCommand _itemCommand;
-        //public ICommand ItemCommand
-        //{
-        //    get
-        //    {
-        //        return _itemCommand;
-        //    }
-        //    set
-        //    {
-        //        if (_itemCommand == null)
-        //        {
-        //            _itemCommand = (ServiceListItemCommand)value;
-        //        }
-        //    }
-        //}
+        private CommandBinding _serviceDeleteCommandBinding;
+        private CommandBinding _serviceChangeCommandBinding;
     }
 }
