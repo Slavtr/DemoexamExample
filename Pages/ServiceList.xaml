@@ -27,6 +27,7 @@
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="{Binding Path=Service.Title}"/>
                             <TextBlock Text="{Binding Path=Service.Duration}"/>
+                            <TextBlock Text="{Binding Path=Service.Cost}" x:Name="Cost" Foreground="Green" TextDecorations="Strikethrough"/>
                             <TextBlock Text="{Binding Path=Service.Discount}" x:Name="Discount"/>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="редактировать" x:Name="lbiButtonRedact" Command="{Binding Path=Change}" IsEnabled="{Binding Path=IsAdmin}"/>
