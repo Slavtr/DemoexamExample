@@ -30,6 +30,7 @@ namespace Проект
             MainFrame.Content = new Pages.Authorisation();
             DataContext = model1;
             model1.Pages.Add(new ServiceList());
+            model1.Pages.Add(new ServiceCard());
         }
     }
 }

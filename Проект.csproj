@@ -81,6 +81,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\ServiceCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\ServiceList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -89,6 +93,9 @@
   <ItemGroup>
     <Compile Include="Pages\Authorisation.xaml.cs">
       <DependentUpon>Authorisation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ServiceCard.xaml.cs">
+      <DependentUpon>ServiceCard.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\ServiceList.xaml.cs">
       <DependentUpon>ServiceList.xaml</DependentUpon>
