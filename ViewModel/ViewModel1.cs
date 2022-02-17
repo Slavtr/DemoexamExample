@@ -25,10 +25,10 @@ namespace ViewModel
         /// Список страниц
         /// </summary>
         public List<Page> Pages { get; set; } = new List<Page>();
-        private bool _isAdmin = false;
+        public bool IsAdmin { get; private set; } = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public virtual void OnPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -42,7 +42,7 @@ namespace ViewModel
             {
                 if(value == "0000")
                 {
-                    _isAdmin = true;
+                    IsAdmin = true;
                 }
             } 
         }
@@ -54,6 +54,8 @@ namespace ViewModel
         public void Authorisation(object sender, EventArgs e)
         {
             MainFrame.Content = Pages.First(x => x.Name.Contains("ServiceList"));
+            OnPropertyChanged(nameof(IsAdmin));
+            LoadServices();
         }
 
         public ServicesVM CurrentService { get; set; }
@@ -62,14 +64,13 @@ namespace ViewModel
         {
             foreach(Service service in _entities.Service)
             {
-                Services.Add(new ServicesVM(service, _isAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteCommand));
+                Services.Add(new ServicesVM(service, IsAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteCommand));
             }
         }
         public ObservableCollection<ServiceClient> ServiceClients { get; set; } = new ObservableCollection<ServiceClient>();
         public ObservableCollection<User> Users { get; set; } = new ObservableCollection<User>();
         public ViewModel1()
         {
-            LoadServices();
         }
 
         private void FullPathPuttingOrder()
@@ -100,14 +101,27 @@ namespace ViewModel
 
         private void CanExecuteCommand(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = _isAdmin;
+            e.CanExecute = IsAdmin;
         }
     }
 
-    public struct ServicesVM
+    public class ServicesVM
     {
         public Service Service { get; set; }
-        public bool IsAdmin;
+        public bool IsAdmin { get; private set; }
+
+        private BitmapImage _mainImage;
+        public BitmapImage MainImage
+        {
+            get
+            {
+                if (_mainImage == null)
+                {
+                    _mainImage = new BitmapImage(new Uri(String.Format("\\{0}", Service.MainImagePath), UriKind.Relative));
+                }
+                return _mainImage;
+            }
+        }
 
         public ServicesVM(Service service, bool isAdmin, Type mainViewType, Action<object, ExecutedRoutedEventArgs> executeServiceCommand, Action<object, CanExecuteRoutedEventArgs> canExecute)
         {

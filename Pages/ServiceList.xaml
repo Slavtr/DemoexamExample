@@ -23,15 +23,15 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Path=Service.MainImagePath}" x:Name="lbiPicture"/>
+                        <Image Source="{Binding Path=MainImage}" x:Name="lbiPicture" MinWidth="100" MinHeight="50" MaxWidth="100" MaxHeight="100"/>
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="{Binding Path=Service.Title}"/>
                             <TextBlock Text="{Binding Path=Service.Duration}"/>
                             <TextBlock Text="{Binding Path=Service.Cost}" x:Name="Cost" Foreground="Green" TextDecorations="Strikethrough"/>
                             <TextBlock Text="{Binding Path=Service.Discount}" x:Name="Discount"/>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="редактировать" x:Name="lbiButtonRedact" Command="{Binding Path=Change}" IsEnabled="{Binding Path=IsAdmin}"/>
-                                <Button Content="удалить" x:Name="lbiButtonDelete" Command="{Binding Path=Delete}" IsEnabled="{Binding Path=IsAdmin}"/>
+                                <Button Content="редактировать" x:Name="lbiButtonRedact" Command="{Binding Path=Change}" IsEnabled="{Binding Path=IsAdmin, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"/>
+                                <Button Content="удалить" x:Name="lbiButtonDelete" Command="{Binding Path=Delete}" IsEnabled="{Binding Path=IsAdmin, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -43,6 +43,6 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button x:Name="AddButton" Content="Добавить" Grid.Column="0" Grid.Row="0" IsEnabled="{Binding Path=IsAdmin}"/>
+        <Button x:Name="AddButton" Content="Добавить" Grid.Column="0" Grid.Row="0" IsEnabled="{Binding Path=IsAdmin, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"/>
     </Grid>
 </Page>

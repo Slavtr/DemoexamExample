@@ -134,21 +134,53 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Услуги школы\for company.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\online lessons.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Английский язык.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Испанский язык.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Итальянский язык.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\киноклуб.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Китайский язык.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Немецкий язык.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Подготовка к экзамену ACT.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Подготовка к экзамену GMAT.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Подготовка к экзамену GRE.jpeg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Подготовка к экзамену IELTS.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Подготовка к экзамену SAT.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Подготовка к экзамену TOEFL.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Португальский язык.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Французский язык.jpg" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="Услуги школы\Японский язык.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
