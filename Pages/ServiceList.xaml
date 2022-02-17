@@ -29,7 +29,7 @@
                             <TextBlock Text="{Binding Path=Duration}"/>
                             <TextBlock Text="{Binding Path=Discount}" x:Name="Discount"/>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="редактировать" x:Name="lbiButtonRedact" Click="{Binding Path=ServiceList_OnClick}" IsEnabled="{Binding Path=IsAdmin}"/>
+                                <Button Content="редактировать" x:Name="lbiButtonRedact" Command="" IsEnabled="{Binding Path=IsAdmin}"/>
                                 <Button Content="удалить" x:Name="lbiButtonDelete" Click="{Binding Path=ServiceList_OnClick}" IsEnabled="{Binding Path=IsAdmin}"/>
                             </StackPanel>
                         </StackPanel>

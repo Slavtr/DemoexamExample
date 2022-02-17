@@ -141,22 +141,6 @@ namespace ViewModel
         //    }
         //}
 
-        private void ServiceList_OnClick(object sender, EventArgs e)
-        {
-            switch((sender as Button).Name)
-            {
-                case "AddButton":
-                    MainFrameChangeEvent.Invoke("ServiceCard", 1);
-                    break;
-                case "lbiButtonDelete":
-                    ServiceDeleteEvent.Invoke();
-                    break;
-                case "lbiButtonRedact":
-                    MainFrameChangeEvent.Invoke("ServiceCard", 2);
-                    break;
-            }
-        }
-
         public delegate void MainFrameChange(string frameName, int mode);
         public event MainFrameChange MainFrameChangeEvent;
 
