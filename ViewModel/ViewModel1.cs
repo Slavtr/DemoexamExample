@@ -101,7 +101,7 @@ namespace ViewModel
 
         private void CanExecuteCommand(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = IsAdmin;
+            e.CanExecute = (sender as ServicesVM).IsAdmin;
         }
     }
 
@@ -127,9 +127,9 @@ namespace ViewModel
         {
             Service = service;
             IsAdmin = isAdmin;
-            Delete = new RoutedCommand("Delete", mainViewType.GetType());
-            Change = new RoutedCommand("Change", mainViewType.GetType());
-            
+            Delete = new RoutedCommand("Delete", mainViewType);
+            Change = new RoutedCommand("Change", mainViewType);
+
             _serviceDeleteCommandBinding = new CommandBinding(Delete, executeServiceCommand.Invoke, canExecute.Invoke);
             _serviceChangeCommandBinding = new CommandBinding(Change, executeServiceCommand.Invoke, canExecute.Invoke);
         }
