@@ -58,15 +58,8 @@ namespace ViewModel
             LoadServices();
         }
 
-        public ServicesVM CurrentService { get; set; }
-        public ObservableCollection<ServicesVM> Services { get; set; } = new ObservableCollection<ServicesVM>();
-        private void LoadServices()
-        {
-            foreach(Service service in _entities.Service)
-            {
-                Services.Add(new ServicesVM(service, IsAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteCommand));
-            }
-        }
+        
+        
         public ObservableCollection<ServiceClient> ServiceClients { get; set; } = new ObservableCollection<ServiceClient>();
         public ObservableCollection<User> Users { get; set; } = new ObservableCollection<User>();
         public ViewModel1()
@@ -82,9 +75,16 @@ namespace ViewModel
             _entities.SaveChanges();
         }
 
+        #region ServicesVM
+
+        public ServicesVM CurrentService { get; set; }
+        public ObservableCollection<ServicesVM> Services { get; set; } = new ObservableCollection<ServicesVM>();
+
         private void Service_Delete()
         {
+            _entities.Service.Remove(CurrentService.Service);
             Services.Remove(CurrentService);
+            _entities.SaveChanges();
         }
 
         public void ExecuteServiceCommand(object sender, ExecutedRoutedEventArgs e)
@@ -95,14 +95,28 @@ namespace ViewModel
                     Service_Delete();
                     break;
                 case "Change":
+
                     break;
             }
         }
 
         private void CanExecuteCommand(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = (sender as ServicesVM).IsAdmin;
+            e.CanExecute = IsAdmin;
         }
+
+        public CommandBindingCollection ServiceVMCommandBindings { get; set; } = new CommandBindingCollection();
+
+        private void LoadServices()
+        {
+            foreach (Service service in _entities.Service)
+            {
+                Services.Add(new ServicesVM(service, IsAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteCommand));
+                ServiceVMCommandBindings.Add(Services.Last().ServiceChangeCommandBinding);
+                ServiceVMCommandBindings.Add(Services.Last().ServiceDeleteCommandBinding);
+            }
+        }
+        #endregion
     }
 
     public class ServicesVM
@@ -123,48 +137,22 @@ namespace ViewModel
             }
         }
 
-        public ServicesVM(Service service, bool isAdmin, Type mainViewType, Action<object, ExecutedRoutedEventArgs> executeServiceCommand, Action<object, CanExecuteRoutedEventArgs> canExecute)
+        public ServicesVM(Service service, bool isAdmin, Type mainVMType, Action<object, ExecutedRoutedEventArgs> executeServiceCommand, Action<object, CanExecuteRoutedEventArgs> canExecute)
         {
             Service = service;
             IsAdmin = isAdmin;
-            Delete = new RoutedCommand("Delete", mainViewType);
-            Change = new RoutedCommand("Change", mainViewType);
 
-            _serviceDeleteCommandBinding = new CommandBinding(Delete, executeServiceCommand.Invoke, canExecute.Invoke);
-            _serviceChangeCommandBinding = new CommandBinding(Change, executeServiceCommand.Invoke, canExecute.Invoke);
+            DeleteCommand = new RoutedCommand();
+            ChangeCommand = new RoutedCommand();
+
+            ServiceDeleteCommandBinding = new CommandBinding(DeleteCommand, executeServiceCommand.Invoke, canExecute.Invoke);
+            ServiceChangeCommandBinding = new CommandBinding(ChangeCommand, executeServiceCommand.Invoke, canExecute.Invoke);
         }
 
-        //private void ServiceItem_OnLoad(object sender, NotifyCollectionChangedEventArgs e)
-        //{
-        //    ListBoxItem listBoxItem = sender as ListBoxItem;
-        //    Image img = listBoxItem.FindName("lbiPicture") as Image;
-        //    if (img != null)
-        //    {
-        //        BitmapImage src = new BitmapImage();
-        //        src.BeginInit();
-        //        src.UriSource = new Uri((listBoxItem.DataContext as Service).MainImagePath);
-        //        src.EndInit();
-        //        img.Source = src;
-        //    }
+        public RoutedCommand DeleteCommand { get; private set; }
+        public RoutedCommand ChangeCommand { get; private set; }
 
-        //    Button bRedact = listBoxItem.FindName("lbiButtonRedact") as Button;
-        //    if (bRedact != null)
-        //    {
-        //        bRedact.IsEnabled = _isAdmin;
-        //        bRedact.Click += ServiceList_OnClick;
-        //    }
-        //    Button bDelete = listBoxItem.FindName("lbiButtonDelete") as Button;
-        //    if (bRedact != null)
-        //    {
-        //        bDelete.IsEnabled = _isAdmin;
-        //        bDelete.Click += ServiceList_OnClick;
-        //    }
-        //}
-        
-        public RoutedCommand Delete { get; set; }
-        public RoutedCommand Change { get; set; }
-
-        private CommandBinding _serviceDeleteCommandBinding;
-        private CommandBinding _serviceChangeCommandBinding;
+        public CommandBinding ServiceDeleteCommandBinding { get; private set; }
+        public CommandBinding ServiceChangeCommandBinding { get; private set; }
     }
 }

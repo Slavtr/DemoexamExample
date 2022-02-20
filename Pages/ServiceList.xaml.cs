@@ -28,6 +28,7 @@ namespace Проект.Pages
             InitializeComponent();
             DataContext = MainWindow.model1;
             lbServices.ItemsSource = MainWindow.model1.Services;
+            MainWindow.model1.ServiceVMCommandBindings = CommandBindings;
         }
     }
 }
