@@ -10,7 +10,6 @@ using System.Collections.Specialized;
 using System.Windows.Input;
 using System.Collections;
 using System.Collections.ObjectModel;
-using ViewModel.Commands;
 
 namespace ViewModel
 {
@@ -53,12 +52,10 @@ namespace ViewModel
         /// <param name="e"></param>
         public void Authorisation(object sender, EventArgs e)
         {
-            MainFrame.Content = Pages.First(x => x.Name.Contains("ServiceList"));
+            MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceList"));
             OnPropertyChanged(nameof(IsAdmin));
             LoadServices();
         }
-
-        
         
         public ObservableCollection<ServiceClient> ServiceClients { get; set; } = new ObservableCollection<ServiceClient>();
         public ObservableCollection<User> Users { get; set; } = new ObservableCollection<User>();
@@ -87,7 +84,7 @@ namespace ViewModel
             _entities.SaveChanges();
         }
 
-        public void ExecuteServiceCommand(object sender, ExecutedRoutedEventArgs e)
+        private void ExecuteServiceCommand(object sender, ExecutedRoutedEventArgs e)
         {
             switch((e.Command as RoutedCommand).Name)
             {
@@ -95,27 +92,79 @@ namespace ViewModel
                     Service_Delete();
                     break;
                 case "Change":
-
+                    break;
+                case "Add":
+                    CurrentService = new ServicesVM(new Service(), IsAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteServiceCommand);
+                    MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
                     break;
             }
         }
 
-        private void CanExecuteCommand(object sender, CanExecuteRoutedEventArgs e)
+        private void CanExecuteServiceCommand(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = IsAdmin;
         }
-
-        public CommandBindingCollection ServiceVMCommandBindings { get; set; } = new CommandBindingCollection();
 
         private void LoadServices()
         {
             foreach (Service service in _entities.Service)
             {
-                Services.Add(new ServicesVM(service, IsAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteCommand));
+                Services.Add(new ServicesVM(service, IsAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteServiceCommand));
                 ServiceVMCommandBindings.Add(Services.Last().ServiceChangeCommandBinding);
                 ServiceVMCommandBindings.Add(Services.Last().ServiceDeleteCommandBinding);
             }
+            ServiceAddCommand = new RoutedCommand("Add", this.GetType());
+            ServiceAddCommandBinding = new CommandBinding(ServiceAddCommand, ExecuteServiceCommand, CanExecuteServiceCommand);
+            ServiceVMCommandBindings.Add(ServiceAddCommandBinding);
         }
+
+        public CommandBindingCollection ServiceVMCommandBindings { get; set; } = new CommandBindingCollection();
+        public RoutedCommand ServiceAddCommand { get; private set; }
+        private CommandBinding ServiceAddCommandBinding { get; set; }
+
+        #region ServiceCard
+
+        public CommandBindingCollection ServiceCardCommandBindings { get; set; } = new CommandBindingCollection();
+
+        public RoutedCommand ServiceCardSaveCommand { get; private set; }
+        private CommandBinding ServiceCardSaveCommandBinding { get; set; }
+
+        public RoutedCommand ServiceCardRejectCommand { get; private set; }
+        private CommandBinding ServiceCardRejectCommandBinding { get; set; }
+
+        public RoutedCommand ServiceCardChooseImageCommand { get; private set; }
+        private CommandBinding ServiceCardChooseImageCommandBinding { get; set; }
+
+        private void ExecuteServiceCardCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            switch ((e.Command as RoutedCommand).Name)
+            {
+                case "Delete":
+                    Service_Delete();
+                    break;
+                case "Change":
+                    break;
+                case "Add":
+                    CurrentService = new ServicesVM(new Service(), IsAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteServiceCommand);
+                    MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
+                    break;
+            }
+        }
+
+        private void CanExecuteServiceCardCommand(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if(CurrentService != null)
+            {
+                e.CanExecute = true;
+            }
+            else
+            {
+                e.CanExecute = false;
+            }
+        }
+
+        #endregion
+
         #endregion
     }
 
@@ -142,8 +191,8 @@ namespace ViewModel
             Service = service;
             IsAdmin = isAdmin;
 
-            DeleteCommand = new RoutedCommand();
-            ChangeCommand = new RoutedCommand();
+            DeleteCommand = new RoutedCommand("Delete", this.GetType());
+            ChangeCommand = new RoutedCommand("Change", this.GetType());
 
             ServiceDeleteCommandBinding = new CommandBinding(DeleteCommand, executeServiceCommand.Invoke, canExecute.Invoke);
             ServiceChangeCommandBinding = new CommandBinding(ChangeCommand, executeServiceCommand.Invoke, canExecute.Invoke);

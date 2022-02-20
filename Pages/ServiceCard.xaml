@@ -11,15 +11,15 @@
     <Grid>
         <StackPanel>
             <Label Content="Название"/>
-            <TextBox x:Name="tbName"/>
+            <TextBox x:Name="tbName" Text="{Binding Path=CurrentService.Service.Name, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             <Label Content="Стоимость"/>
-            <TextBox x:Name="tbCost"/>
+            <TextBox x:Name="tbCost" Text="{Binding Path=CurrentService.Service.Cost, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             <Label Content="Длительность"/>
-            <TextBox x:Name="tbDuration"/>
+            <TextBox x:Name="tbDuration" Text="{Binding Path=CurrentService.Service.Duration, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             <Label Content="Описание"/>
-            <TextBox x:Name="tbDescribtion"/>
+            <TextBox x:Name="tbDescribtion" Text="{Binding Path=CurrentService.Service.Describtion, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             <Label Content="Скидка"/>
-            <TextBox x:Name="tbDiscount"/>
+            <TextBox x:Name="tbDiscount" Text="{Binding Path=CurrentService.Service.Discount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
 
             <Label Content="Изображение"/>
             <Button x:Name="bChooze" Content="Выбрать"/>

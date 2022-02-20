@@ -23,6 +23,7 @@ namespace Проект.Pages
         public ServiceCard()
         {
             InitializeComponent();
+            DataContext = MainWindow.model1;
         }
     }
 }
