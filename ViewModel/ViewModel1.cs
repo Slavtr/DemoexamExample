@@ -61,6 +61,8 @@ namespace ViewModel
         public ObservableCollection<User> Users { get; set; } = new ObservableCollection<User>();
         public ViewModel1()
         {
+            ServiceAddCommand = new RoutedCommand("Add", typeof(ServicesVM));
+            ServiceAddCommandBinding = new CommandBinding(ServiceAddCommand, ExecuteServiceCommand, CanExecuteServiceCommand);
         }
 
         private void FullPathPuttingOrder()
@@ -92,9 +94,11 @@ namespace ViewModel
                     Service_Delete();
                     break;
                 case "Change":
+                    CurrentService = (sender as Button).DataContext as ServicesVM;
+                    MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
                     break;
                 case "Add":
-                    CurrentService = new ServicesVM(new Service(), IsAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteServiceCommand);
+                    CurrentService = new ServicesVM(new Service(), IsAdmin, ExecuteServiceCommand, CanExecuteServiceCommand);
                     MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
                     break;
             }
@@ -109,18 +113,16 @@ namespace ViewModel
         {
             foreach (Service service in _entities.Service)
             {
-                Services.Add(new ServicesVM(service, IsAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteServiceCommand));
+                Services.Add(new ServicesVM(service, IsAdmin, ExecuteServiceCommand, CanExecuteServiceCommand));
                 ServiceVMCommandBindings.Add(Services.Last().ServiceChangeCommandBinding);
                 ServiceVMCommandBindings.Add(Services.Last().ServiceDeleteCommandBinding);
             }
-            ServiceAddCommand = new RoutedCommand("Add", this.GetType());
-            ServiceAddCommandBinding = new CommandBinding(ServiceAddCommand, ExecuteServiceCommand, CanExecuteServiceCommand);
             ServiceVMCommandBindings.Add(ServiceAddCommandBinding);
         }
 
         public CommandBindingCollection ServiceVMCommandBindings { get; set; } = new CommandBindingCollection();
         public RoutedCommand ServiceAddCommand { get; private set; }
-        private CommandBinding ServiceAddCommandBinding { get; set; }
+        public CommandBinding ServiceAddCommandBinding { get; set; }
 
         #region ServiceCard
 
@@ -139,13 +141,13 @@ namespace ViewModel
         {
             switch ((e.Command as RoutedCommand).Name)
             {
-                case "Delete":
+                case "ChooseImage":
                     Service_Delete();
                     break;
-                case "Change":
+                case "Reject":
                     break;
-                case "Add":
-                    CurrentService = new ServicesVM(new Service(), IsAdmin, this.GetType(), ExecuteServiceCommand, CanExecuteServiceCommand);
+                case "Save":
+                    CurrentService = new ServicesVM(new Service(), IsAdmin, ExecuteServiceCommand, CanExecuteServiceCommand);
                     MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
                     break;
             }
@@ -186,7 +188,7 @@ namespace ViewModel
             }
         }
 
-        public ServicesVM(Service service, bool isAdmin, Type mainVMType, Action<object, ExecutedRoutedEventArgs> executeServiceCommand, Action<object, CanExecuteRoutedEventArgs> canExecute)
+        public ServicesVM(Service service, bool isAdmin, Action<object, ExecutedRoutedEventArgs> executeServiceCommand, Action<object, CanExecuteRoutedEventArgs> canExecute)
         {
             Service = service;
             IsAdmin = isAdmin;
