@@ -24,6 +24,7 @@ namespace Проект.Pages
         {
             InitializeComponent();
             DataContext = MainWindow.model1;
+            MainWindow.model1.ServiceCardCommandBindings = CommandBindings;
         }
     }
 }

@@ -17,7 +17,7 @@
             <RowDefinition Height="47*"/>
         </Grid.RowDefinitions>
         <TextBlock Text="СПИСОК УСЛУГ" Grid.Row="0" Grid.Column="1"/>
-        <ListBox x:Name="lbServices" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Services}">
+        <ListBox x:Name="lbServices" x:FieldModifier="public" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Services}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">

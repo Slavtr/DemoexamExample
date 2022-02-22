@@ -10,11 +10,14 @@ using System.Collections.Specialized;
 using System.Windows.Input;
 using System.Collections;
 using System.Collections.ObjectModel;
+using Microsoft.Win32;
+using System.IO;
 
 namespace ViewModel
 {
     public class ViewModel1 : INotifyPropertyChanged
     {
+        const string ImagePath = "/Услуги школы/";
         private Entities _entities = new Entities();
         /// <summary>
         /// Главный фрейм
@@ -76,6 +79,7 @@ namespace ViewModel
 
         #region ServicesVM
 
+        private ServicesVM tempService;
         public ServicesVM CurrentService { get; set; }
         public ObservableCollection<ServicesVM> Services { get; set; } = new ObservableCollection<ServicesVM>();
 
@@ -94,14 +98,28 @@ namespace ViewModel
                     Service_Delete();
                     break;
                 case "Change":
-                    CurrentService = (sender as Button).DataContext as ServicesVM;
-                    MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
+                    ChangeService(sender);
                     break;
                 case "Add":
                     CurrentService = new ServicesVM(new Service(), IsAdmin, ExecuteServiceCommand, CanExecuteServiceCommand);
+                    OnPropertyChanged("CurrentService");
                     MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
                     break;
             }
+        }
+
+        private void ChangeService(object sender)
+        {
+            Type t = sender.GetType();
+            System.Reflection.FieldInfo fInfo = t.GetField("lbServices");
+            object lb = fInfo.GetValue(sender);
+            if (lb != null)
+            {
+                CurrentService = (lb as ListBox).Items.CurrentItem as ServicesVM;
+            }
+            tempService = CurrentService;
+            OnPropertyChanged("CurrentService");
+            MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
         }
 
         private void CanExecuteServiceCommand(object sender, CanExecuteRoutedEventArgs e)
@@ -142,13 +160,22 @@ namespace ViewModel
             switch ((e.Command as RoutedCommand).Name)
             {
                 case "ChooseImage":
-                    Service_Delete();
+                    OpenFileDialog dlg = new OpenFileDialog();
+                    dlg.Filter = "Images (.png, .jpg)|*.png|*.jpg";
+                    bool? result = dlg.ShowDialog();
+
+                    if (result == true)
+                    {
+                        CurrentService.Service.MainImagePath = dlg.FileName;
+
+                        string str = dlg.FileName.Replace("\\", "/").Split('/').Last();
+                    }
                     break;
                 case "Reject":
+                    CurrentService = tempService;
                     break;
                 case "Save":
-                    CurrentService = new ServicesVM(new Service(), IsAdmin, ExecuteServiceCommand, CanExecuteServiceCommand);
-                    MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
+                    _entities.SaveChanges();
                     break;
             }
         }
@@ -174,7 +201,7 @@ namespace ViewModel
     {
         public Service Service { get; set; }
         public bool IsAdmin { get; private set; }
-
+        
         private BitmapImage _mainImage;
         public BitmapImage MainImage
         {
@@ -186,6 +213,10 @@ namespace ViewModel
                 }
                 return _mainImage;
             }
+            set
+            {
+                _mainImage = value;
+            }
         }
 
         public ServicesVM(Service service, bool isAdmin, Action<object, ExecutedRoutedEventArgs> executeServiceCommand, Action<object, CanExecuteRoutedEventArgs> canExecute)
@@ -196,8 +227,22 @@ namespace ViewModel
             DeleteCommand = new RoutedCommand("Delete", this.GetType());
             ChangeCommand = new RoutedCommand("Change", this.GetType());
 
-            ServiceDeleteCommandBinding = new CommandBinding(DeleteCommand, executeServiceCommand.Invoke, canExecute.Invoke);
-            ServiceChangeCommandBinding = new CommandBinding(ChangeCommand, executeServiceCommand.Invoke, canExecute.Invoke);
+            ServiceDeleteCommandBinding = new CommandBinding(DeleteCommand, ChangeCurrentItemLbServices, canExecute.Invoke);
+            ServiceChangeCommandBinding = new CommandBinding(ChangeCommand, ChangeCurrentItemLbServices, canExecute.Invoke);
+
+            ServiceChangeCommandBinding.Executed += executeServiceCommand.Invoke;
+            ServiceDeleteCommandBinding.Executed += executeServiceCommand.Invoke;
+        }
+
+        private void ChangeCurrentItemLbServices(object sender, ExecutedRoutedEventArgs e)
+        {
+            Type t = sender.GetType();
+            System.Reflection.FieldInfo fInfo = t.GetField("lbServices");
+            object lb = fInfo.GetValue(sender);
+            if(lb != null)
+            {
+                bool isCur = (lb as ListBox).Items.MoveCurrentTo(this);
+            }
         }
 
         public RoutedCommand DeleteCommand { get; private set; }

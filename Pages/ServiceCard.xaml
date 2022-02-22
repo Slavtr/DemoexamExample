@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:Проект.Pages"
+      xmlns:local="clr-namespace:Проект.Pages" xmlns:viewmodel="clr-namespace:ViewModel;assembly=ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:ViewModel1}"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="ServiceCard">
@@ -11,13 +11,13 @@
     <Grid>
         <StackPanel>
             <Label Content="Название"/>
-            <TextBox x:Name="tbName" Text="{Binding Path=CurrentService.Service.Name, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <TextBox x:Name="tbName" Text="{Binding Path=CurrentService.Service.Title, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             <Label Content="Стоимость"/>
             <TextBox x:Name="tbCost" Text="{Binding Path=CurrentService.Service.Cost, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             <Label Content="Длительность"/>
             <TextBox x:Name="tbDuration" Text="{Binding Path=CurrentService.Service.Duration, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             <Label Content="Описание"/>
-            <TextBox x:Name="tbDescribtion" Text="{Binding Path=CurrentService.Service.Describtion, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <TextBox x:Name="tbDescribtion" Text="{Binding Path=CurrentService.Service.Description, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             <Label Content="Скидка"/>
             <TextBox x:Name="tbDiscount" Text="{Binding Path=CurrentService.Service.Discount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
 
