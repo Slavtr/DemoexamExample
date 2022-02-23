@@ -11,7 +11,7 @@
     <Grid>
         <StackPanel>
             <Label Content="Название"/>
-            <TextBox x:Name="tbName" Text="{Binding Path=CurrentService.Service.Title, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <TextBox x:Name="tbName" Text="{Binding Path=CurrentService.Service.Title, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
             <Label Content="Стоимость"/>
             <TextBox x:Name="tbCost" Text="{Binding Path=CurrentService.Service.Cost, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
             <Label Content="Длительность"/>
@@ -22,12 +22,12 @@
             <TextBox x:Name="tbDiscount" Text="{Binding Path=CurrentService.Service.Discount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
 
             <Label Content="Изображение"/>
-            <Button x:Name="bChooze" Content="Выбрать"/>
+            <Button x:Name="bChooze" Content="Выбрать" Command="{Binding Path=ServiceCardChooseImageCommand}"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
-                <Button x:Name="bReject" Content="Отмена" Margin="10"/>
-                <Button x:Name="bSave" Content="Сохранить" Margin="10"/>
+                <Button x:Name="bReject" Content="Отмена" Margin="10" Command="{Binding Path=ServiceCardRejectCommand}"/>
+                <Button x:Name="bSave" Content="Сохранить" Margin="10" Command="{Binding Path=ServiceCardSaveCommand}"/>
 
             </StackPanel>
         </StackPanel>

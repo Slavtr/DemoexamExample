@@ -17,7 +17,7 @@ namespace ViewModel
 {
     public class ViewModel1 : INotifyPropertyChanged
     {
-        const string ImagePath = "/Услуги школы/";
+        private const string _imagePath = "Услуги школы\\";
         private Entities _entities = new Entities();
         /// <summary>
         /// Главный фрейм
@@ -66,6 +66,14 @@ namespace ViewModel
         {
             ServiceAddCommand = new RoutedCommand("Add", typeof(ServicesVM));
             ServiceAddCommandBinding = new CommandBinding(ServiceAddCommand, ExecuteServiceCommand, CanExecuteServiceCommand);
+
+            ServiceCardSaveCommand = new RoutedCommand("Save", GetType());
+            ServiceCardRejectCommand = new RoutedCommand("Reject", GetType());
+            ServiceCardChooseImageCommand = new RoutedCommand("ChooseImage", GetType());
+
+            ServiceCardSaveCommandBinding = new CommandBinding(ServiceCardSaveCommand, ExecuteServiceCardCommand, CanExecuteServiceCardCommand);
+            ServiceCardRejectCommandBinding = new CommandBinding(ServiceCardRejectCommand, ExecuteServiceCardCommand, CanExecuteServiceCardCommand);
+            ServiceCardChooseImageCommandBinding = new CommandBinding(ServiceCardChooseImageCommand, ExecuteServiceCardCommand, CanExecuteServiceCardCommand);
         }
 
         private void FullPathPuttingOrder()
@@ -79,7 +87,6 @@ namespace ViewModel
 
         #region ServicesVM
 
-        private ServicesVM tempService;
         public ServicesVM CurrentService { get; set; }
         public ObservableCollection<ServicesVM> Services { get; set; } = new ObservableCollection<ServicesVM>();
 
@@ -98,9 +105,11 @@ namespace ViewModel
                     Service_Delete();
                     break;
                 case "Change":
+                    LoadServiceCard();
                     ChangeService(sender);
                     break;
                 case "Add":
+                    LoadServiceCard();
                     CurrentService = new ServicesVM(new Service(), IsAdmin, ExecuteServiceCommand, CanExecuteServiceCommand);
                     OnPropertyChanged("CurrentService");
                     MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
@@ -117,7 +126,7 @@ namespace ViewModel
             {
                 CurrentService = (lb as ListBox).Items.CurrentItem as ServicesVM;
             }
-            tempService = CurrentService;
+            CurrentService.BeginEdit();
             OnPropertyChanged("CurrentService");
             MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
         }
@@ -144,37 +153,61 @@ namespace ViewModel
 
         #region ServiceCard
 
+        private void LoadServiceCard()
+        {
+            if(ServiceCardCommandBindings.Count == 0)
+            {
+                ServiceCardCommandBindings.Add(ServiceCardSaveCommandBinding);
+                ServiceCardCommandBindings.Add(ServiceCardRejectCommandBinding);
+                ServiceCardCommandBindings.Add(ServiceCardChooseImageCommandBinding);
+            }
+        }
+
         public CommandBindingCollection ServiceCardCommandBindings { get; set; } = new CommandBindingCollection();
 
         public RoutedCommand ServiceCardSaveCommand { get; private set; }
-        private CommandBinding ServiceCardSaveCommandBinding { get; set; }
+        public CommandBinding ServiceCardSaveCommandBinding { get; set; }
 
         public RoutedCommand ServiceCardRejectCommand { get; private set; }
-        private CommandBinding ServiceCardRejectCommandBinding { get; set; }
+        public CommandBinding ServiceCardRejectCommandBinding { get; set; }
 
         public RoutedCommand ServiceCardChooseImageCommand { get; private set; }
-        private CommandBinding ServiceCardChooseImageCommandBinding { get; set; }
+        public CommandBinding ServiceCardChooseImageCommandBinding { get; set; }
 
         private void ExecuteServiceCardCommand(object sender, ExecutedRoutedEventArgs e)
         {
             switch ((e.Command as RoutedCommand).Name)
             {
                 case "ChooseImage":
-                    OpenFileDialog dlg = new OpenFileDialog();
-                    dlg.Filter = "Images (.png, .jpg)|*.png|*.jpg";
+                    OpenFileDialog dlg = new OpenFileDialog
+                    {
+                        Filter = "Images (.png, .jpg)|*.png;*.jpg"
+                    };
                     bool? result = dlg.ShowDialog();
 
                     if (result == true)
                     {
-                        CurrentService.Service.MainImagePath = dlg.FileName;
+                        string name = dlg.FileName.Replace("\\", "/").Split('/').Last();
 
-                        string str = dlg.FileName.Replace("\\", "/").Split('/').Last();
+                        File.Copy(dlg.FileName, @"D:\Slava\Программы\Проекты\DemoexamExample\ViewModel\Услуги школы\" + name, true);
+                        File.Copy(dlg.FileName, @"D:\Slava\Программы\Проекты\DemoexamExample\Услуги школы\" + name, true);
+
+                        CurrentService.BeginEdit();
+
+                        CurrentService.Service.MainImagePath = name;
+
+                        CurrentService.MainImage = new BitmapImage(new Uri(String.Format("\\{0}", CurrentService.Service.MainImagePath), UriKind.Relative));
+                        int index = Services.IndexOf(Services.First(x=> x.Service.Id == CurrentService.Service.Id));
+                        Services[index] = CurrentService;
+                        OnPropertyChanged("Services");
                     }
                     break;
                 case "Reject":
-                    CurrentService = tempService;
+                    CurrentService.CancelEdit();
+                    OnPropertyChanged("CurrentService");
                     break;
                 case "Save":
+                    CurrentService.EndEdit();
                     _entities.SaveChanges();
                     break;
             }
@@ -197,11 +230,18 @@ namespace ViewModel
         #endregion
     }
 
-    public class ServicesVM
+    public class ServicesVM : INotifyPropertyChanged, IEditableObject
     {
+        private ServicesVM _tempValue;
         public Service Service { get; set; }
         public bool IsAdmin { get; private set; }
-        
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private BitmapImage _mainImage;
         public BitmapImage MainImage
         {
@@ -216,6 +256,7 @@ namespace ViewModel
             set
             {
                 _mainImage = value;
+                OnPropertyChanged("MainImage");
             }
         }
 
@@ -233,6 +274,10 @@ namespace ViewModel
             ServiceChangeCommandBinding.Executed += executeServiceCommand.Invoke;
             ServiceDeleteCommandBinding.Executed += executeServiceCommand.Invoke;
         }
+        public ServicesVM()
+        {
+
+        }
 
         private void ChangeCurrentItemLbServices(object sender, ExecutedRoutedEventArgs e)
         {
@@ -243,6 +288,46 @@ namespace ViewModel
             {
                 bool isCur = (lb as ListBox).Items.MoveCurrentTo(this);
             }
+        }
+
+        public void BeginEdit()
+        {
+            _tempValue = new ServicesVM
+            {
+                Service = new Service
+                {
+                    Cost = this.Service.Cost,
+                    Description = this.Service.Description,
+                    Discount = this.Service.Discount,
+                    Duration = this.Service.Duration,  
+                    Id = this.Service.Id,
+                    MainImagePath = this.Service.MainImagePath,
+                    ServiceClient = this.Service.ServiceClient,
+                    Title = this.Service.Title
+                },
+                IsAdmin = this.IsAdmin,
+                DeleteCommand = this.DeleteCommand,
+                ChangeCommand = this.ChangeCommand,
+                ServiceChangeCommandBinding = this.ServiceChangeCommandBinding,
+                ServiceDeleteCommandBinding = this.ServiceDeleteCommandBinding
+            };
+        }
+
+        public void EndEdit()
+        {
+            _tempValue = null;
+        }
+
+        public void CancelEdit()
+        {
+            if (_tempValue == null) return;
+
+            Service = _tempValue.Service;
+            IsAdmin = _tempValue.IsAdmin;
+            DeleteCommand = _tempValue.DeleteCommand;
+            ChangeCommand = _tempValue.ChangeCommand;
+            ServiceChangeCommandBinding = _tempValue.ServiceChangeCommandBinding;
+            ServiceDeleteCommandBinding = _tempValue.ServiceDeleteCommandBinding;
         }
 
         public RoutedCommand DeleteCommand { get; private set; }

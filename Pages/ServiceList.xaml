@@ -17,11 +17,11 @@
             <RowDefinition Height="47*"/>
         </Grid.RowDefinitions>
         <TextBlock Text="СПИСОК УСЛУГ" Grid.Row="0" Grid.Column="1"/>
-        <ListBox x:Name="lbServices" x:FieldModifier="public" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Services}">
+        <ListBox x:Name="lbServices" x:FieldModifier="public" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Services, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{Binding Path=MainImage}" x:Name="lbiPicture" MinWidth="100" MinHeight="50" MaxWidth="100" MaxHeight="100"/>
+                        <Image Source="{Binding Path=MainImage, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" x:Name="lbiPicture" MinWidth="100" MinHeight="50" MaxWidth="100" MaxHeight="100"/>
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="{Binding Path=Service.Title}"/>
                             <TextBlock Text="{Binding Path=Service.Duration}"/>
