@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using System.IO;
+using System.Windows;
 
 namespace ViewModel
 {
@@ -60,12 +61,13 @@ namespace ViewModel
             LoadServices();
         }
         
-        public ObservableCollection<ServiceClient> ServiceClients { get; set; } = new ObservableCollection<ServiceClient>();
-        public ObservableCollection<User> Users { get; set; } = new ObservableCollection<User>();
         public ViewModel1()
         {
             ServiceAddCommand = new RoutedCommand("Add", typeof(ServicesVM));
             ServiceAddCommandBinding = new CommandBinding(ServiceAddCommand, ExecuteServiceCommand, CanExecuteServiceCommand);
+
+            FilterClearCommand = new RoutedCommand("ClearFilter", GetType());
+            FilterClearCommandBinding = new CommandBinding(FilterClearCommand, FilterClear, CanExecuteServiceCommand);
 
             ServiceCardSaveCommand = new RoutedCommand("Save", GetType());
             ServiceCardRejectCommand = new RoutedCommand("Reject", GetType());
@@ -74,6 +76,7 @@ namespace ViewModel
             ServiceCardSaveCommandBinding = new CommandBinding(ServiceCardSaveCommand, ExecuteServiceCardCommand, CanExecuteServiceCardCommand);
             ServiceCardRejectCommandBinding = new CommandBinding(ServiceCardRejectCommand, ExecuteServiceCardCommand, CanExecuteServiceCardCommand);
             ServiceCardChooseImageCommandBinding = new CommandBinding(ServiceCardChooseImageCommand, ExecuteServiceCardCommand, CanExecuteServiceCardCommand);
+
         }
 
         private void FullPathPuttingOrder()
@@ -89,12 +92,16 @@ namespace ViewModel
 
         public ServicesVM CurrentService { get; set; }
         public ObservableCollection<ServicesVM> Services { get; set; } = new ObservableCollection<ServicesVM>();
+        public ObservableCollection<ServicesVM> UnchangedServices { get; set; } = new ObservableCollection<ServicesVM>();
 
         private void Service_Delete()
         {
-            _entities.Service.Remove(CurrentService.Service);
-            Services.Remove(CurrentService);
-            _entities.SaveChanges();
+            if (_entities.ServiceClient.FirstOrDefault(x => x.Service == CurrentService.Service.Id) == null)
+            {
+                _entities.Service.Remove(CurrentService.Service);
+                Services.Remove(CurrentService);
+                _entities.SaveChanges();
+            }
         }
 
         private void ExecuteServiceCommand(object sender, ExecutedRoutedEventArgs e)
@@ -113,6 +120,9 @@ namespace ViewModel
                     CurrentService = new ServicesVM(new Service(), IsAdmin, ExecuteServiceCommand, CanExecuteServiceCommand);
                     OnPropertyChanged("CurrentService");
                     MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
+                    break;
+                case "AddUser":
+                    MainFrame.Content = Pages.First(x => x.Title.Contains("AddUser"));
                     break;
             }
         }
@@ -143,8 +153,16 @@ namespace ViewModel
                 Services.Add(new ServicesVM(service, IsAdmin, ExecuteServiceCommand, CanExecuteServiceCommand));
                 ServiceVMCommandBindings.Add(Services.Last().ServiceChangeCommandBinding);
                 ServiceVMCommandBindings.Add(Services.Last().ServiceDeleteCommandBinding);
+                ServiceVMCommandBindings.Add(Services.Last().AddUserCommandBinding);
+                UnchangedServices.Add(new ServicesVM(service, IsAdmin, ExecuteServiceCommand, CanExecuteServiceCommand));
+                ServiceVMCommandBindings.Add(UnchangedServices.Last().ServiceChangeCommandBinding);
+                ServiceVMCommandBindings.Add(UnchangedServices.Last().ServiceDeleteCommandBinding);
+                ServiceVMCommandBindings.Add(UnchangedServices.Last().AddUserCommandBinding);
             }
             ServiceVMCommandBindings.Add(ServiceAddCommandBinding);
+            ServiceVMCommandBindings.Add(FilterClearCommandBinding);
+
+            Users = new ObservableCollection<User>(_entities.User);
         }
 
         public CommandBindingCollection ServiceVMCommandBindings { get; set; } = new CommandBindingCollection();
@@ -227,6 +245,135 @@ namespace ViewModel
 
         #endregion
 
+        public ObservableCollection<string> DiscountSort { get; private set; } = new ObservableCollection<string> { "none", "0-5%", "5%-15%" };
+
+        private string _selectedDiscount;
+        public string SelectedDiscount
+        {
+            get { return _selectedDiscount; }
+            set
+            {
+                switch (value)
+                {
+                    case "none":
+                        Services = UnchangedServices;
+                        OnPropertyChanged("Services");
+                        break;
+                    case "0-5%":
+                        Services = new ObservableCollection<ServicesVM>(Services.Where(x => x.Service.Discount >= 0 && x.Service.Discount < 5));
+                        OnPropertyChanged("Services");
+                        break;
+                    case "5%-15%":
+                        Services = new ObservableCollection<ServicesVM>(Services.Where(x => x.Service.Discount >= 5 && x.Service.Discount < 15));
+                        OnPropertyChanged("Services");
+                        break;
+                }
+                _selectedDiscount = value;
+                OnPropertyChanged("SelectedDiscount");
+            }
+        }
+        public ObservableCollection<string> CostSort { get; private set; } = new ObservableCollection<string> { "none", "Убыв", "Возр" };
+
+        private string _selectedCost;
+        public string SelectedCost
+        {
+            get { return _selectedCost; }
+            set
+            {
+                switch (value)
+                {
+                    case "none":
+                        Services = UnchangedServices;
+                        OnPropertyChanged("Services");
+                        break;
+                    case "Убыв":
+                        Services = new ObservableCollection<ServicesVM>(Services.OrderBy(x=> x.Service.Cost));
+                        OnPropertyChanged("Services");
+                        break;
+                    case "Возр":
+                        Services = new ObservableCollection<ServicesVM>(Services.OrderByDescending(x=> x.Service.Cost));
+                        OnPropertyChanged("Services");
+                        break;
+                }
+                _selectedCost = value;
+                OnPropertyChanged("SelectedCost");
+            }
+        }
+
+        public RoutedCommand FilterClearCommand { get; private set; }
+        public CommandBinding FilterClearCommandBinding { get; set; }
+
+        public void FilterClear(object sender, ExecutedRoutedEventArgs e)
+        {
+            SelectedCost = "none";
+            SelectedDiscount = "none";
+        }
+
+        private string _filterName;
+        public string FilterName
+        {
+            get { return _filterName; }
+            set
+            {
+                if (String.IsNullOrWhiteSpace(value))
+                {
+                    Services = UnchangedServices;
+                }
+                else
+                {
+                    Services = new ObservableCollection<ServicesVM>(Services.Where(x => x.Service.Title.Contains(value)));
+                    OnPropertyChanged("Services");
+                }
+                _filterName = value;
+                OnPropertyChanged("FilterName");
+            }
+        }
+        private string _filterDescr;
+        public string FilterDesct
+        {
+            get { return _filterDescr; }
+            set
+            {
+                if (String.IsNullOrWhiteSpace(value))
+                {
+                    Services = UnchangedServices;
+                }
+                else
+                {
+                    Services = new ObservableCollection<ServicesVM>(Services.Where(x => x.Service.Description.Contains(value)));
+                    OnPropertyChanged("Services");
+                }
+                _filterDescr = value;
+                OnPropertyChanged("FilterName");
+            }
+        }
+
+        #region AddUser
+
+        public RoutedCommand ServiceClientAddCommand { get; private set; }
+        public CommandBinding ServiceClientAddCommandBinding { get; set; }
+
+        public User CurrentUser { get; set; }
+
+        public ObservableCollection<ServiceClient> ServiceClients { get; set; } = new ObservableCollection<ServiceClient>();
+        public ObservableCollection<User> Users { get; set; } = new ObservableCollection<User>();
+
+        public void ServiceClientAdd(object sender, ExecutedRoutedEventArgs e)
+        {
+            ServiceClient serviceClient = new ServiceClient
+            {
+                Service = CurrentService.Service.Id,
+                Service1 = CurrentService.Service,
+                User = CurrentUser
+            };
+
+            ServiceClients.Add(serviceClient);
+            _entities.ServiceClient.Add(serviceClient);
+            _entities.SaveChanges();
+        }
+
+        #endregion
+
         #endregion
     }
 
@@ -268,11 +415,15 @@ namespace ViewModel
             DeleteCommand = new RoutedCommand("Delete", this.GetType());
             ChangeCommand = new RoutedCommand("Change", this.GetType());
 
+            AddUserCommand = new RoutedCommand("AddUser", this.GetType());
+
             ServiceDeleteCommandBinding = new CommandBinding(DeleteCommand, ChangeCurrentItemLbServices, canExecute.Invoke);
             ServiceChangeCommandBinding = new CommandBinding(ChangeCommand, ChangeCurrentItemLbServices, canExecute.Invoke);
+            AddUserCommandBinding = new CommandBinding(AddUserCommand, ChangeCurrentItemLbServices, canExecute.Invoke);
 
             ServiceChangeCommandBinding.Executed += executeServiceCommand.Invoke;
             ServiceDeleteCommandBinding.Executed += executeServiceCommand.Invoke;
+            AddUserCommandBinding.Executed += executeServiceCommand.Invoke;
         }
         public ServicesVM()
         {
@@ -335,5 +486,8 @@ namespace ViewModel
 
         public CommandBinding ServiceDeleteCommandBinding { get; private set; }
         public CommandBinding ServiceChangeCommandBinding { get; private set; }
+
+        public RoutedCommand AddUserCommand { get; private set; }
+        public CommandBinding AddUserCommandBinding { get; set; }
     }
 }

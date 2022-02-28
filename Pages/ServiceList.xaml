@@ -16,11 +16,25 @@
             <RowDefinition Height="3*"/>
             <RowDefinition Height="47*"/>
         </Grid.RowDefinitions>
-        <TextBlock Text="СПИСОК УСЛУГ" Grid.Row="0" Grid.Column="1"/>
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+            <TextBlock Text="СПИСОК УСЛУГ"/>
+            <Label Content="Скидка:"/>
+            <ComboBox x:Name="DiscountFilter" ItemsSource="{Binding Path=DiscountSort}" SelectedItem="{Binding Path=SelectedDiscount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <Label Content="Стоимость"/>
+            <ComboBox x:Name="CostFilter" ItemsSource="{Binding Path=CostSort}" SelectedItem="{Binding Path=SelectedCost, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <Button x:Name="SortReset" Content="Сброс" Command="{Binding Path=FilterClearCommand}"/>
+            <Label Content="Название"/>
+            <TextBlock MinWidth="150" MinHeight="20" x:Name="NameFilter" Text="{Binding Path=FilterName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <Label Content="Описание"/>
+            <TextBlock MinWidth="150" MinHeight="20" x:Name="DescrFilter" Text="{Binding Path=FilterDesct, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+        </StackPanel>
         <ListBox x:Name="lbServices" x:FieldModifier="public" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Services, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
+                        <StackPanel.InputBindings>
+                            <MouseBinding Gesture="LeftDoubleClick" Command="{Binding Path=AddUserCommand}"/>
+                        </StackPanel.InputBindings>
                         <Image Source="{Binding Path=MainImage, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" x:Name="lbiPicture" MinWidth="100" MinHeight="50" MaxWidth="100" MaxHeight="100"/>
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="{Binding Path=Service.Title}"/>

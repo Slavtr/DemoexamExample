@@ -32,6 +32,7 @@ namespace Проект
             DataContext = model1;
             model1.Pages.Add(new ServiceList());
             model1.Pages.Add(new ServiceCard());
+            model1.Pages.Add(new AddUser());
         }
     }
 }
