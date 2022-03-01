@@ -376,6 +376,7 @@ namespace ViewModel
         public CommandBinding ServiceClientAddCommandBinding { get; set; }
 
         public User CurrentUser { get; set; }
+        public DateTime CurrentDate { get; set; }
 
         public ObservableCollection<ServiceClient> ServiceClients { get; set; } = new ObservableCollection<ServiceClient>();
         public ObservableCollection<User> Users { get; set; } = new ObservableCollection<User>();
@@ -386,7 +387,8 @@ namespace ViewModel
             {
                 Service = CurrentService.Service.Id,
                 Service1 = CurrentService.Service,
-                User = CurrentUser
+                User = CurrentUser,
+                TimeStart = CurrentDate
             };
 
             ServiceClients.Add(serviceClient);

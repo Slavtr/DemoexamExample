@@ -14,6 +14,8 @@
             <TextBox x:Name="tbName" Text="{Binding Path=CurrentService.Service.Title, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
             <Label Content="Пользователь"/>
             <ComboBox x:Name="cbUser" ItemsSource="{Binding Path=Users, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" DisplayMemberPath="Surname" SelectedItem="{Binding Path=CurrentUser, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+            <Label Content="Дата"/>
+            <DatePicker DataContext="{Binding Path=CurrentDate}"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 
