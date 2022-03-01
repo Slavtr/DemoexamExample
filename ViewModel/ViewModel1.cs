@@ -59,6 +59,7 @@ namespace ViewModel
             MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceList"));
             OnPropertyChanged(nameof(IsAdmin));
             LoadServices();
+            LoadUsers();
         }
         
         public ViewModel1()
@@ -122,9 +123,22 @@ namespace ViewModel
                     MainFrame.Content = Pages.First(x => x.Title.Contains("ServiceCard"));
                     break;
                 case "AddUser":
-                    MainFrame.Content = Pages.First(x => x.Title.Contains("AddUser"));
+                    AddUserCardLoad(sender);
                     break;
             }
+        }
+
+        private void AddUserCardLoad(object sender)
+        {
+            Type t = sender.GetType();
+            System.Reflection.FieldInfo fInfo = t.GetField("lbServices");
+            object lb = fInfo.GetValue(sender);
+            if (lb != null)
+            {
+                CurrentService = (lb as ListBox).Items.CurrentItem as ServicesVM;
+            }
+            OnPropertyChanged("CurrentService");
+            MainFrame.Content = Pages.First(x => x.Title.Contains("AddUser"));
         }
 
         private void ChangeService(object sender)
@@ -162,7 +176,15 @@ namespace ViewModel
             ServiceVMCommandBindings.Add(ServiceAddCommandBinding);
             ServiceVMCommandBindings.Add(FilterClearCommandBinding);
 
-            Users = new ObservableCollection<User>(_entities.User);
+        }
+
+        private void LoadUsers()
+        {
+            foreach (User user in _entities.User)
+            {
+                Users.Add(user);
+            }
+            CurrentUser = Users.First();
         }
 
         public CommandBindingCollection ServiceVMCommandBindings { get; set; } = new CommandBindingCollection();
@@ -489,5 +511,10 @@ namespace ViewModel
 
         public RoutedCommand AddUserCommand { get; private set; }
         public CommandBinding AddUserCommandBinding { get; set; }
+    }
+
+    public class ServiceClientsVM
+    {
+
     }
 }
